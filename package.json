@@ -1,0 +1,47 @@
+{
+  "name": "crystal-trade",
+  "version": "1.0.0",
+  "description": "CrystalTrade - Transparent Loan Trading Platform",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:react\" \"npm run dev:electron\" \"npm run dev:api\"",
+    "dev:react": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev:api": "cd backend && python -m uvicorn main:app --reload --port 8000",
+    "build": "npm run build:react && npm run build:electron",
+    "build:react": "tsc && vite build",
+    "build:electron": "tsc -p electron",
+    "start": "electron .",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0",
+    "axios": "^1.7.7",
+    "recharts": "^2.12.7",
+    "react-dropzone": "^14.2.9",
+    "react-hot-toast": "^2.4.1",
+    "lucide-react": "^0.445.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.1",
+    "electron": "^30.0.0",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.12.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.2",
+    "wait-on": "^8.0.1"
+  }
+}
+
