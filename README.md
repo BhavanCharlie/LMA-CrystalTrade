@@ -139,165 +139,35 @@ graph TB
     style ExternalAPI fill:#ffd700
 ```
 
-### System Architecture Diagram (Detailed)
+### Request Flow (Mermaid)
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           CLIENT LAYER                                      │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                               │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
-│  │   Electron App   │  │   Web Browser    │  │   Mobile App     │         │
-│  │   (Desktop)      │  │   (React SPA)   │  │   (Future)       │         │
-│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
-│           │                      │                      │                    │
-│           └──────────────────────┼──────────────────────┘                    │
-│                                  │                                            │
-│                    ┌─────────────▼─────────────┐                            │
-│                    │   React Frontend          │                            │
-│                    │   (TypeScript + Tailwind) │                            │
-│                    │                           │                            │
-│                    │  ┌─────────────────────┐ │                            │
-│                    │  │  Pages              │ │                            │
-│                    │  │  • Dashboard       │ │                            │
-│                    │  │  • AnalysisView    │ │                            │
-│                    │  │  • DocumentUpload  │ │                            │
-│                    │  │  • Login/Signup     │ │                            │
-│                    │  └─────────────────────┘ │                            │
-│                    │                           │                            │
-│                    │  ┌─────────────────────┐ │                            │
-│                    │  │  Components         │ │                            │
-│                    │  │  • RiskScore        │ │                            │
-│                    │  │  • TradeReadiness   │ │                            │
-│                    │  │  • AuctionRoom      │ │                            │
-│                    │  └─────────────────────┘ │                            │
-│                    │                           │                            │
-│                    │  ┌─────────────────────┐ │                            │
-│                    │  │  Services (API)    │ │                            │
-│                    │  │  • Axios Client     │ │                            │
-│                    │  │  • Auth Context     │ │                            │
-│                    │  └─────────────────────┘ │                            │
-│                    └─────────────┬─────────────┘                            │
-└──────────────────────────────────┼───────────────────────────────────────────┘
-                                   │
-                                   │ HTTP/REST API (Port 8000)
-                                   │ JWT Authentication
-                                   │
-┌──────────────────────────────────▼───────────────────────────────────────────┐
-│                           API LAYER (FastAPI)                                │
-├───────────────────────────────────────────────────────────────────────────────┤
-│                                                                                │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │                    FastAPI Application                                │  │
-│  │                                                                        │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │  │
-│  │  │   Auth      │  │  Document    │  │  Analysis   │               │  │
-│  │  │   Endpoints │  │  Endpoints   │  │  Endpoints  │               │  │
-│  │  │             │  │              │  │              │               │  │
-│  │  │ • /signup   │  │ • /upload    │  │ • /start    │               │  │
-│  │  │ • /login    │  │              │  │ • /get      │               │  │
-│  │  │ • /me       │  │              │  │ • /trade-   │               │  │
-│  │  │             │  │              │  │   readiness │               │  │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │  │
-│  │                                                                        │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               │  │
-│  │  │  Auction     │  │  Monitoring  │  │  Reports    │               │  │
-│  │  │  Endpoints   │  │  Endpoints   │  │  Endpoints  │               │  │
-│  │  │              │  │              │  │              │               │  │
-│  │  │ • /create    │  │ • /rules     │  │ • /generate │               │  │
-│  │  │ • /bids      │  │ • /alerts    │  │ • /list     │               │  │
-│  │  │ • /close     │  │              │  │              │               │  │
-│  │  └──────────────┘  └──────────────┘  └──────────────┘               │  │
-│  │                                                                        │  │
-│  │  ┌──────────────────────────────────────────────────────────────┐  │  │
-│  │  │              Middleware                                       │  │  │
-│  │  │  • CORS                                                       │  │  │
-│  │  │  • JWT Authentication                                        │  │  │
-│  │  │  • Error Handling                                             │  │  │
-│  │  │  • Request Logging                                            │  │  │
-│  │  └──────────────────────────────────────────────────────────────┘  │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                                │
-└──────────────────────────────────┬───────────────────────────────────────────┘
-                                   │
-┌──────────────────────────────────▼───────────────────────────────────────────┐
-│                        SERVICE LAYER                                         │
-├───────────────────────────────────────────────────────────────────────────────┤
-│                                                                                │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
-│  │ Document         │  │ AI Analyzer      │  │ Due Diligence    │         │
-│  │ Processor        │  │                   │  │ Engine           │         │
-│  │                  │  │ • GPT-4 API      │  │                  │         │
-│  │ • PDF parsing   │  │ • LangChain      │  │ • Compliance     │         │
-│  │ • Word parsing  │  │ • Text chunking  │  │ • Risk scoring   │         │
-│  │ • Excel parsing │  │ • Embeddings     │  │ • Recommendations│         │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘         │
-│                                                                                │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
-│  │ Trade Readiness │  │ Transfer         │  │ LMA Deviation   │         │
-│  │ Engine          │  │ Simulator        │  │ Engine           │         │
-│  │                  │  │                  │  │                  │         │
-│  │ • Scoring       │  │ • Pathways       │  │ • Template match│         │
-│  │ • Breakdown     │  │ • Consents       │  │ • Severity       │         │
-│  │ • Evidence      │  │ • Timeline       │  │ • Impact         │         │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘         │
-│                                                                                │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
-│  │ Buyer Fit       │  │ Negotiation      │  │ Monitoring       │         │
-│  │ Analyzer        │  │ Insights         │  │ Service           │         │
-│  │                  │  │                  │  │                  │         │
-│  │ • Matching      │  │ • Predictions    │  │ • Rules          │         │
-│  │ • Scoring       │  │ • Redlines       │  │ • Alerts         │         │
-│  │ • Indicators    │  │ • Questions      │  │ • Checks         │         │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘         │
-│                                                                                │
-│  ┌──────────────────┐  ┌──────────────────┐                                  │
-│  │ Auction         │  │ Report           │                                  │
-│  │ Service         │  │ Generator        │                                  │
-│  │                  │  │                  │                                  │
-│  │ • Management    │  │ • PDF creation   │                                  │
-│  │ • Bidding       │  │ • Templates      │                                  │
-│  │ • Validation    │  │ • Charts         │                                  │
-│  └──────────────────┘  └──────────────────┘                                  │
-│                                                                                │
-└──────────────────────────────────┬───────────────────────────────────────────┘
-                                   │
-┌──────────────────────────────────▼───────────────────────────────────────────┐
-│                          DATA LAYER                                          │
-├───────────────────────────────────────────────────────────────────────────────┤
-│                                                                                │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │                    SQLite Database                                    │  │
-│  │                    (SQLAlchemy ORM)                                   │  │
-│  │                                                                        │  │
-│  │  Core Tables:                                                         │  │
-│  │  • users          • analyses        • documents      • reports       │  │
-│  │                                                                        │  │
-│  │  Loan Markets Tables:                                                 │  │
-│  │  • trade_readiness    • transfer_simulations  • lma_deviations       │  │
-│  │  • buyer_fits         • negotiation_insights  • monitoring_rules     │  │
-│  │  • monitoring_alerts  • auctions             • bids                 │  │
-│  │                                                                        │  │
-│  │  Supporting Tables:                                                   │  │
-│  │  • evidence_logs      • audit_events         • deals                │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                                │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │                    File Storage                                       │  │
-│  │                                                                        │  │
-│  │  • backend/uploads/  →  Uploaded documents (PDF, Word, Excel)       │  │
-│  │  • backend/reports/  →  Generated PDF reports                        │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                                │
-│  ┌──────────────────────────────────────────────────────────────────────┐  │
-│  │                    External Services                                  │  │
-│  │                                                                        │  │
-│  │  • OpenAI API      →  GPT-4 for document analysis                     │  │
-│  │  • (Future) Email  →  Alert notifications                              │  │
-│  │  • (Future) S3     →  Cloud storage                                  │  │
-│  └──────────────────────────────────────────────────────────────────────┘  │
-│                                                                                │
-└────────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Auth
+    participant Service
+    participant Database
+    
+    User->>Frontend: User Action
+    Frontend->>Frontend: Update State
+    Frontend->>API: HTTP Request<br/>(with JWT token)
+    
+    API->>Auth: Verify JWT Token
+    Auth->>Database: Get User
+    Database-->>Auth: User Data
+    Auth-->>API: Token Valid
+    
+    API->>Service: Call Service Layer
+    Service->>Service: Business Logic
+    Service->>Database: Query/Update Data
+    Database-->>Service: Results
+    
+    Service-->>API: Processed Data
+    API-->>Frontend: HTTP Response (JSON)
+    Frontend->>Frontend: Update State
+    Frontend-->>User: Display Results
 ```
 
 ### Request Flow
@@ -510,183 +380,40 @@ sequenceDiagram
     end
 ```
 
-### Document Upload and Analysis Flow (Detailed)
+### Loan Markets Feature Data Flow (Mermaid)
 
-```
-┌──────────────┐
-│    User      │
-└──────┬───────┘
-       │
-       │ 1. Upload Document (PDF/Word/Excel)
-       │
-┌──────▼──────────────────────────────────────────────────────────────┐
-│  Frontend: DocumentUpload.tsx                                        │
-│  • Drag & Drop Handler                                               │
-│  • File Validation                                                   │
-│  • FormData Creation                                                 │
-└──────┬───────────────────────────────────────────────────────────────┘
-       │
-       │ 2. POST /api/v1/documents/upload
-       │    Body: multipart/form-data
-       │
-┌──────▼──────────────────────────────────────────────────────────────┐
-│  Backend: main.py                                                    │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ Route: /api/v1/documents/upload                             │  │
-│  │  • Receive file                                              │  │
-│  │  • Validate file type/size                                  │  │
-│  │  • Call DocumentProcessor                                    │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ DocumentProcessor.save_file()                               │  │
-│  │  • Save to backend/uploads/                                 │  │
-│  │  • Generate unique filename                                  │  │
-│  │  • Extract metadata                                         │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ Database: Create Analysis Record                            │  │
-│  │  • id: UUID                                                  │  │
-│  │  • status: "pending"                                         │  │
-│  │  • document_path: /uploads/file.pdf                         │  │
-│  │  • created_at: timestamp                                    │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-└─────────┼───────────────────────────────────────────────────────────┘
-          │
-          │ 3. Return analysis_id
-          │
-┌─────────▼───────────────────────────────────────────────────────────┐
-│  Frontend: Receive analysis_id                                     │
-│  • Store in state                                                   │
-│  • Navigate to AnalysisView                                        │
-│  • Show "Upload successful" message                                │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│  User clicks "Start Analysis"                                      │
-└─────────┬───────────────────────────────────────────────────────────┘
-          │
-          │ 4. POST /api/v1/analyses/{id}/start
-          │
-┌─────────▼───────────────────────────────────────────────────────────┐
-│  Backend: Start Analysis Background Task                            │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ Update Analysis: status = "processing"                        │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ DocumentProcessor.extract_text()                            │  │
-│  │  • Read file from disk                                       │  │
-│  │  • Parse based on file type                                  │  │
-│  │  • Extract raw text                                          │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ AIAnalyzer.analyze_document()                               │  │
-│  │  • Split text into chunks (4000 chars)                      │  │
-│  │  • Call OpenAI GPT-4 API                                    │  │
-│  │  • Extract terms, risks, unusual clauses                     │  │
-│  │  • Return structured JSON                                   │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ DueDiligenceEngine.run_checks()                             │  │
-│  │  • Analyze extracted text                                   │  │
-│  │  • Check compliance rules                                    │  │
-│  │  • Calculate risk scores                                    │  │
-│  │  • Generate recommendations                                 │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ Database: Update Analysis Record                            │  │
-│  │  • status: "completed"                                       │  │
-│  │  • risk_score: 65                                            │  │
-│  │  • risk_breakdown: {...}                                     │  │
-│  │  • compliance_checks: [...]                                  │  │
-│  │  • extracted_terms: {...}                                   │  │
-│  │  • recommendations: [...]                                    │  │
-│  │  • updated_at: timestamp                                    │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-└─────────┼───────────────────────────────────────────────────────────┘
-          │
-          │ 5. Frontend polls GET /api/v1/analyses/{id}
-          │    Status changes from "processing" → "completed"
-          │
-┌─────────▼───────────────────────────────────────────────────────────┐
-│  Frontend: AnalysisView.tsx                                         │
-│  • Fetch analysis data                                              │
-│  • Display results in tabs                                          │
-│  • Show risk scores, terms, compliance                              │
-└───────────────────────────────────────────────────────────────────────┘
-```
-
-### Loan Markets Feature Data Flow
-
-```
-┌──────────────┐
-│    User      │
-└──────┬───────┘
-       │
-       │ 1. Click "Trade Readiness" tab
-       │
-┌──────▼──────────────────────────────────────────────────────────────┐
-│  Frontend: AnalysisView.tsx                                         │
-│  • Check if data already loaded                                     │
-│  • If not, call API                                                 │
-└──────┬───────────────────────────────────────────────────────────────┘
-       │
-       │ 2. GET /api/v1/analyses/{id}/trade-readiness
-       │
-┌──────▼──────────────────────────────────────────────────────────────┐
-│  Backend: main.py                                                   │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ Route Handler                                               │  │
-│  │  • Check if TradeReadiness exists in DB                     │  │
-│  │  • If exists, return cached result                           │  │
-│  │  • If not, call TradeReadinessEngine                        │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ TradeReadinessEngine.calculate()                            │  │
-│  │  • Fetch Analysis data from DB                              │  │
-│  │  • Assess 6 categories:                                      │  │
-│  │    - Documentation completeness                             │  │
-│  │    - Transferability friction                                │  │
-│  │    - Consent complexity                                      │  │
-│  │    - Covenant tightness                                      │  │
-│  │    - Non-standard deviations                                 │  │
-│  │    - Regulatory flags                                         │  │
-│  │  • Calculate weighted score (0-100)                         │  │
-│  │  • Assign label (Green/Amber/Red)                           │  │
-│  │  • Generate evidence links                                   │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ Database: Save TradeReadiness Record                        │  │
-│  │  • analysis_id: FK to analyses                              │  │
-│  │  • score: 75                                                 │  │
-│  │  • label: "Green"                                            │  │
-│  │  • breakdown: {...}                                          │  │
-│  │  • evidence_links: [...]                                    │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-│         │                                                           │
-│  ┌──────▼───────────────────────────────────────────────────────┐  │
-│  │ EvidenceLogService.log_evidence()                          │  │
-│  │  • Create EvidenceLog records                               │  │
-│  │  • Link to document pages/sections                           │  │
-│  │  • Store confidence scores                                   │  │
-│  └──────┬───────────────────────────────────────────────────────┘  │
-└─────────┼───────────────────────────────────────────────────────────┘
-          │
-          │ 3. Return TradeReadiness data
-          │
-┌─────────▼───────────────────────────────────────────────────────────┐
-│  Frontend: TradeReadiness Component                                │
-│  • Display score with color coding                                 │
-│  • Show breakdown chart                                             │
-│  • List evidence with citations                                    │
-└───────────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant Engine
+    participant Database
+    participant EvidenceLog
+    
+    User->>Frontend: Click Feature Tab (e.g., Trade Readiness)
+    Frontend->>Frontend: Check if data cached
+    alt Data Not Cached
+        Frontend->>Backend: GET /api/v1/analyses/{id}/feature-name
+        Backend->>Database: Check if feature data exists
+        alt Data Exists
+            Database-->>Backend: Return cached data
+            Backend-->>Frontend: Return cached results
+        else Data Not Exists
+            Backend->>Engine: Calculate feature data
+            Engine->>Database: Fetch Analysis data
+            Database-->>Engine: Analysis data
+            Engine->>Engine: Process & Calculate
+            Engine->>Database: Save feature results
+            Engine->>EvidenceLog: Log evidence
+            EvidenceLog->>Database: Save evidence logs
+            Engine-->>Backend: Return calculated data
+            Backend-->>Frontend: Return results
+        end
+    else Data Cached
+        Frontend->>Frontend: Display cached data
+    end
+    Frontend-->>User: Display feature results
 ```
 
 ## Entity Relationship Diagram
@@ -887,184 +614,6 @@ erDiagram
     }
 ```
 
-### Entity Relationship Diagram (Detailed)
-
-┌──────────────┐
-│    User      │
-├──────────────┤
-│ PK id        │
-│    email     │──┐
-│    username  │  │
-│    password  │  │
-│    full_name │  │
-│    is_active │  │
-│    is_admin  │  │
-└──────────────┘  │
-                 │
-                 │ 1:N
-                 │
-┌────────────────▼──────────────┐
-│         Analysis              │
-├───────────────────────────────┤
-│ PK id                         │
-│    loan_name                  │
-│    status                     │
-│    document_path              │
-│    risk_score                 │
-│    risk_breakdown (JSON)      │
-│    compliance_checks (JSON)   │
-│    extracted_terms (JSON)     │
-│    recommendations (JSON)     │
-└──────┬────────────────────────┘
-       │
-       │ 1:N
-       │
-┌──────▼──────────────┐      ┌──────────────┐
-│    Document         │      │    Report    │
-├──────────────────────┤      ├──────────────┤
-│ PK id               │      │ PK id        │
-│ FK analysis_id      │      │ FK analysis_id│
-│    file_path        │      │    file_path │
-│    file_name        │      │    report_type│
-│    file_type        │      └──────────────┘
-│    file_size        │
-└──────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    LOAN MARKETS ENTITIES                            │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌──────────────┐
-│   Analysis   │──┐
-└──────────────┘  │
-                  │ 1:N
-                  │
-    ┌─────────────┼─────────────┬──────────────┬──────────────┐
-    │             │             │              │              │
-┌───▼──────┐ ┌───▼──────┐ ┌───▼──────┐ ┌───▼──────┐ ┌───▼──────┐
-│Trade     │ │Transfer  │ │LMA       │ │Buyer     │ │Negotiation│
-│Readiness │ │Simulation│ │Deviation  │ │Fit       │ │Insight   │
-├──────────┤ ├──────────┤ ├──────────┤ ├──────────┤ ├──────────┤
-│PK id     │ │PK id     │ │PK id     │ │PK id     │ │PK id     │
-│FK analysis│ │FK analysis│ │FK analysis│ │FK analysis│ │FK analysis│
-│   score  │ │   pathway│ │   clause │ │   buyer  │ │   clause │
-│   label  │ │   consents│ │   severity│ │   score │ │   likelihood│
-│breakdown │ │   timeline│ │   impact │ │indicators│ │redlines  │
-└──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    AUCTION ENTITIES                                 │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌──────────────┐
-│   Analysis   │──┐
-└──────────────┘  │
-                  │ 1:N
-                  │
-            ┌─────▼──────┐
-            │  Auction  │
-            ├───────────┤
-            │ PK id     │
-            │ FK analysis│
-            │   loan_name│
-            │   type     │
-            │   lot_size │
-            │   status   │
-            │   end_time │
-            └─────┬──────┘
-                  │
-                  │ 1:N
-                  │
-            ┌─────▼──────┐
-            │    Bid    │
-            ├───────────┤
-            │ PK id     │
-            │ FK auction│
-            │   bidder  │
-            │   amount  │
-            │   is_winning│
-            └───────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                  MONITORING ENTITIES                                │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌──────────────┐
-│   Analysis   │──┐
-└──────────────┘  │
-                  │ 1:N
-                  │
-            ┌─────▼──────────────┐
-            │ MonitoringRule    │
-            ├───────────────────┤
-            │ PK id             │
-            │ FK analysis_id   │
-            │   rule_type       │
-            │   threshold_value │
-            │   is_active       │
-            └─────┬─────────────┘
-                  │
-                  │ 1:N
-                  │
-            ┌─────▼──────────────┐
-            │ MonitoringAlert    │
-            ├───────────────────┤
-            │ PK id             │
-            │ FK rule_id        │
-            │ FK analysis_id    │
-            │   alert_type      │
-            │   message         │
-            │   is_acknowledged │
-            └───────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                  SUPPORTING ENTITIES                                │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌──────────────┐
-│   Analysis   │──┐
-└──────────────┘  │
-                  │ 1:N
-                  │
-            ┌─────▼──────────────┐
-            │  EvidenceLog       │
-            ├───────────────────┤
-            │ PK id             │
-            │ FK analysis_id    │
-            │   document_id     │
-            │   page_number     │
-            │   section         │
-            │   extraction_text │
-            │   confidence      │
-            │   feature_type    │
-            └───────────────────┘
-
-┌──────────────────┐
-│   AuditEvent     │
-├──────────────────┤
-│ PK id            │
-│   event_type     │
-│   entity_type    │
-│   entity_id      │
-│   user_id        │
-│   action         │
-│   details (JSON) │
-│   timestamp      │
-└──────────────────┘
-
-┌──────────────────┐
-│      Deal        │
-├──────────────────┤
-│ PK id            │
-│   deal_name      │
-│   borrower_name  │
-│   deal_type      │
-│   principal_amt  │
-│   status         │
-│   analysis_ids   │
-│   metadata (JSON)│
-└──────────────────┘
-```
 
 ## Deployment Architecture
 
@@ -1176,176 +725,6 @@ flowchart TD
     style BackgroundTask fill:#FFD700
 ```
 
-### Complete Document Analysis Workflow (Detailed)
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PHASE 1: DOCUMENT UPLOAD                         │
-└─────────────────────────────────────────────────────────────────────┘
-
-User Action
-    │
-    ├─► Navigate to Upload Page
-    │
-    ├─► Drag & Drop Document (PDF/Word/Excel)
-    │   │
-    │   └─► Frontend Validation
-    │       • File type check
-    │       • File size check
-    │       • Show upload progress
-    │
-    └─► Submit Upload
-        │
-        └─► POST /api/v1/documents/upload
-            │
-            ├─► Backend Receives File
-            │   • Validate file
-            │   • Generate unique ID
-            │
-            ├─► DocumentProcessor.save_file()
-            │   • Save to backend/uploads/
-            │   • Extract metadata
-            │
-            └─► Create Analysis Record
-                • id: UUID
-                • status: "pending"
-                • document_path: /uploads/file.pdf
-                • created_at: timestamp
-                │
-                └─► Return analysis_id to frontend
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PHASE 2: ANALYSIS PROCESSING                     │
-└─────────────────────────────────────────────────────────────────────┘
-
-User Clicks "Start Analysis"
-    │
-    └─► POST /api/v1/analyses/{id}/start
-        │
-        ├─► Update Status: "processing"
-        │
-        └─► Background Task Starts (Async)
-            │
-            ├─► STEP 1: Text Extraction
-            │   │
-            │   └─► DocumentProcessor.extract_text()
-            │       • Read file from disk
-            │       • Parse based on file type:
-            │         - PDF → pdfplumber
-            │         - Word → python-docx
-            │         - Excel → openpyxl
-            │       • Return raw text
-            │
-            ├─► STEP 2: AI Analysis
-            │   │
-            │   └─► AIAnalyzer.analyze_document()
-            │       • Split text into chunks (4000 chars)
-            │       • For each chunk:
-            │         - Call OpenAI GPT-4 API
-            │         - Extract key terms
-            │         - Identify risks
-            │         - Find unusual clauses
-            │       • Aggregate results
-            │       • Return structured JSON
-            │
-            ├─► STEP 3: Due Diligence Checks
-            │   │
-            │   └─► DueDiligenceEngine.run_checks()
-            │       • Transfer restrictions analysis
-            │       • Consent requirements check
-            │       • Financial covenants identification
-            │       • Payment obligations review
-            │       • Lien mentions check
-            │       • Regulatory compliance
-            │
-            ├─► STEP 4: Risk Scoring
-            │   │
-            │   └─► DueDiligenceEngine.calculate_risk_score()
-            │       • Credit Risk (40% weight)
-            │       • Legal Risk (35% weight)
-            │       • Operational Risk (25% weight)
-            │       • Overall score (0-100)
-            │
-            ├─► STEP 5: Generate Recommendations
-            │   │
-            │   └─► DueDiligenceEngine.generate_recommendations()
-            │       • Based on risk score
-            │       • Based on compliance failures
-            │       • Actionable items
-            │
-            └─► STEP 6: Save Results
-                │
-                └─► Update Analysis Record
-                    • status: "completed"
-                    • risk_score: calculated
-                    • risk_breakdown: JSON
-                    • compliance_checks: JSON
-                    • extracted_terms: JSON
-                    • recommendations: JSON
-                    • updated_at: timestamp
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PHASE 3: VIEW RESULTS                             │
-└─────────────────────────────────────────────────────────────────────┘
-
-Frontend Polls for Status
-    │
-    └─► GET /api/v1/analyses/{id} (every 3 seconds)
-        │
-        ├─► Status: "processing" → Continue polling
-        │
-        └─► Status: "completed" → Load results
-            │
-            └─► Display in AnalysisView
-                │
-                ├─► Overview Tab
-                │   • Risk Score (radial chart)
-                │   • Risk Breakdown (bar chart)
-                │   • Extracted Terms (cards)
-                │   • Compliance Checklist (table)
-                │   • Recommendations (list)
-                │
-                └─► Loan Markets Tabs (On-Demand)
-                    │
-                    ├─► Trade Readiness Tab
-                    │   └─► GET /api/v1/analyses/{id}/trade-readiness
-                    │       • Calculate score
-                    │       • Show breakdown
-                    │       • Display evidence
-                    │
-                    ├─► Transfer Simulator Tab
-                    │   └─► GET /api/v1/analyses/{id}/transfer-simulation
-                    │       • Show assignment pathway
-                    │       • Show participation pathway
-                    │       • Display playbook
-                    │
-                    ├─► LMA Deviations Tab
-                    │   └─► GET /api/v1/analyses/{id}/lma-deviations
-                    │       • List deviations
-                    │       • Show severity
-                    │       • Display heatmap
-                    │
-                    ├─► Buyer Fit Tab
-                    │   └─► GET /api/v1/analyses/{id}/buyer-fit
-                    │       • Show buyer type scores
-                    │       • Display indicators
-                    │       • Show reasoning
-                    │
-                    ├─► Negotiation Tab
-                    │   └─► GET /api/v1/analyses/{id}/negotiation-insights
-                    │       • List insights
-                    │       • Show redlines
-                    │       • Display questions
-                    │
-                    ├─► Monitoring Tab
-                    │   ├─► POST /api/v1/analyses/{id}/monitoring/rules
-                    │   └─► GET /api/v1/analyses/{id}/monitoring/alerts
-                    │
-                    └─► Auction Tab
-                        ├─► POST /api/v1/auctions (create)
-                        ├─► POST /api/v1/auctions/{id}/bids (bid)
-                        └─► GET /api/v1/auctions/{id}/leaderboard
-```
 
 ### Authentication Flow (Mermaid)
 
