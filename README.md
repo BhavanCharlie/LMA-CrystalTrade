@@ -705,178 +705,70 @@ sequenceDiagram
 
 ### Auction Workflow
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    AUCTION CREATION FLOW                             │
-└─────────────────────────────────────────────────────────────────────┘
-
-Seller creates auction
-    │
-    └─► POST /api/v1/auctions
-        Body: {
-          analysis_id,
-          loan_name,
-          auction_type: "english" | "sealed_bid",
-          lot_size,
-          min_bid,
-          bid_increment,
-          reserve_price,
-          end_time
-        }
-        │
-        ├─► Backend Validation
-        │   • Check analysis exists
-        │   • Validate auction parameters
-        │   • Check user permissions
-        │
-        ├─► Create Auction Record
-        │   • id: UUID
-        │   • status: "pending"
-        │   • start_time: now
-        │   • created_by: user_id
-        │
-        └─► Create AuditEvent
-            • event_type: "auction_created"
-            • entity_type: "auction"
-            • entity_id: auction.id
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    BIDDING FLOW                                      │
-└─────────────────────────────────────────────────────────────────────┘
-
-Buyer places bid
-    │
-    └─► POST /api/v1/auctions/{id}/bids
-        Body: { bid_amount }
-        │
-        ├─► Backend Validation
-        │   • Check auction is active
-        │   • Check bid >= min_bid
-        │   • Check bid >= current_highest + increment
-        │   • Check auction hasn't ended
-        │
-        ├─► Create Bid Record
-        │   • id: UUID
-        │   • auction_id: FK
-        │   • bidder_id: user_id
-        │   • bid_amount: validated
-        │   • is_locked: true
-        │   • timestamp: now
-        │
-        ├─► Update Auction
-        │   • Set current highest bid
-        │
-        └─► Create AuditEvent
-            • event_type: "bid_placed"
-            • entity_type: "bid"
-            • entity_id: bid.id
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    AUCTION CLOSURE FLOW                              │
-└─────────────────────────────────────────────────────────────────────┘
-
-Seller closes auction
-    │
-    └─► POST /api/v1/auctions/{id}/close
-        │
-        ├─► Backend Validation
-        │   • Check user is auction creator
-        │   • Check auction is active
-        │
-        ├─► Determine Winner
-        │   • Find highest bid
-        │   • Check if >= reserve_price
-        │
-        ├─► Update Auction
-        │   • status: "closed"
-        │   • winning_bid_id: highest_bid.id
-        │
-        ├─► Update Winning Bid
-        │   • is_winning: true
-        │
-        └─► Create AuditEvent
-            • event_type: "auction_closed"
-            • entity_type: "auction"
-            • entity_id: auction.id
-```
-
-### API Request Flow with Error Handling
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    SUCCESSFUL REQUEST FLOW                           │
-└─────────────────────────────────────────────────────────────────────┘
-
-Frontend API Call
-    │
-    └─► Axios Request
-        │
-        ├─► Add Authorization Header (if authenticated)
-        │   Header: Authorization: Bearer <token>
-        │
-        ├─► Send HTTP Request
-        │   Method: GET/POST/PUT/DELETE
-        │   URL: http://localhost:8000/api/v1/...
-        │   Body: JSON (if POST/PUT)
-        │
-        └─► Backend Processing
-            │
-            ├─► CORS Middleware
-            │   • Check origin
-            │   • Add CORS headers
-            │
-            ├─► JWT Middleware (if protected route)
-            │   • Extract token
-            │   • Verify token
-            │   • Get user
-            │
-            ├─► Route Handler
-            │   • Validate request
-            │   • Parse parameters
-            │   • Call service
-            │
-            ├─► Service Layer
-            │   • Business logic
-            │   • Database operations
-            │
-            └─► Response
-                Status: 200 OK
-                Body: { data: {...} }
-                │
-                └─► Frontend: Update state, show success
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    ERROR HANDLING FLOW                               │
-└─────────────────────────────────────────────────────────────────────┘
-
-Request with Error
-    │
-    └─► Backend Error Occurs
-        │
-        ├─► Validation Error (400)
-        │   └─► Return: { "detail": "Validation error" }
-        │       │
-        │       └─► Frontend: Show error message
-        │
-        ├─► Authentication Error (401)
-        │   └─► Return: { "detail": "Not authenticated" }
-        │       │
-        │       └─► Frontend: Redirect to login
-        │
-        ├─► Not Found Error (404)
-        │   └─► Return: { "detail": "Resource not found" }
-        │       │
-        │       └─► Frontend: Show 404 message
-        │
-        ├─► Server Error (500)
-        │   └─► Return: { "detail": "Internal server error" }
-        │       │
-        │       └─► Frontend: Show error toast
-        │
-        └─► Network Error
-            └─► Frontend: Show connection error
-                • Retry button
-                • Check connection status
+```mermaid
+sequenceDiagram
+    participant Seller
+    participant Buyer
+    participant Frontend
+    participant Backend
+    participant AuctionService
+    participant Database
+    participant AuditLog
+    
+    Note over Seller,AuditLog: Auction Creation Flow
+    Seller->>Frontend: Create Auction Form
+    Frontend->>Backend: POST /api/v1/auctions<br/>{analysis_id, loan_name, type, lot_size, etc.}
+    Backend->>AuctionService: Validate & Create
+    AuctionService->>Database: Check analysis exists
+    Database-->>AuctionService: Analysis data
+    AuctionService->>Database: Create Auction Record<br/>(status: pending)
+    AuctionService->>AuditLog: Log auction_created event
+    Database-->>AuctionService: Auction created
+    AuctionService-->>Backend: Return auction_id
+    Backend-->>Frontend: Success + auction_id
+    Frontend-->>Seller: Show auction created
+    
+    Note over Seller,AuditLog: Bidding Flow
+    Buyer->>Frontend: View Auction & Place Bid
+    Frontend->>Backend: POST /api/v1/auctions/{id}/bids<br/>{bid_amount}
+    Backend->>AuctionService: Validate Bid
+    AuctionService->>Database: Check auction status
+    Database-->>AuctionService: Auction data
+    alt Auction Active & Bid Valid
+        AuctionService->>Database: Create Bid Record<br/>(is_locked: true)
+        AuctionService->>Database: Update highest bid
+        AuctionService->>AuditLog: Log bid_placed event
+        Database-->>AuctionService: Bid created
+        AuctionService-->>Backend: Success
+        Backend-->>Frontend: Bid accepted
+        Frontend-->>Buyer: Show bid confirmation
+    else Bid Invalid
+        AuctionService-->>Backend: Validation error
+        Backend-->>Frontend: Error message
+        Frontend-->>Buyer: Show error
+    end
+    
+    Note over Seller,AuditLog: Auction Closure Flow
+    Seller->>Frontend: Close Auction
+    Frontend->>Backend: POST /api/v1/auctions/{id}/close
+    Backend->>AuctionService: Close Auction
+    AuctionService->>Database: Get all bids
+    Database-->>AuctionService: Bids list
+    AuctionService->>AuctionService: Find highest bid<br/>Check >= reserve_price
+    alt Highest Bid >= Reserve
+        AuctionService->>Database: Update Auction<br/>(status: closed, winning_bid_id)
+        AuctionService->>Database: Update Bid<br/>(is_winning: true)
+        AuctionService->>AuditLog: Log auction_closed event
+        Database-->>AuctionService: Auction closed
+        AuctionService-->>Backend: Winner determined
+        Backend-->>Frontend: Auction closed + winner
+        Frontend-->>Seller: Show winner
+    else No Valid Bid
+        AuctionService->>Database: Update Auction<br/>(status: closed, no winner)
+        AuctionService-->>Backend: Auction closed (no winner)
+        Backend-->>Frontend: Auction closed
+        Frontend-->>Seller: Show no winner message
+    end
 ```
 
 ## AI Modules Used
