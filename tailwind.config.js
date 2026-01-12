@@ -20,6 +20,14 @@ module.exports = {
           900: '#0c4a6e',
         },
       },
+      backdropBlur: {
+        xs: '2px',
+      },
+      boxShadow: {
+        'glow': '0 0 20px rgba(14, 165, 233, 0.3)',
+        'glow-lg': '0 0 40px rgba(14, 165, 233, 0.4)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+      },
     },
   },
   plugins: [],

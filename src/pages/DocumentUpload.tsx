@@ -124,7 +124,7 @@ export default function DocumentUpload() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Upload Documents</h1>
+        <h1 className="text-3xl font-bold gradient-text">Upload Documents</h1>
         <p className="mt-2 text-sm text-gray-600">
           Upload loan documents for AI-powered due diligence analysis
         </p>
@@ -132,28 +132,36 @@ export default function DocumentUpload() {
 
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
+        className={`glass-card border-2 border-dashed rounded-2xl p-16 text-center cursor-pointer transition-all duration-300 smooth-transition ${
           isDragActive
-            ? 'border-primary-500 bg-primary-50'
-            : 'border-gray-300 hover:border-primary-400'
+            ? 'border-primary-400 bg-gradient-to-br from-primary-50 to-primary-100 scale-105 shadow-xl'
+            : 'border-gray-300 hover:border-primary-400 hover:scale-[1.02] hover:shadow-xl'
         }`}
       >
         <input {...getInputProps()} />
-        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+        <div className={`mx-auto w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 ${
+          isDragActive 
+            ? 'bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg scale-110' 
+            : 'bg-gradient-to-br from-primary-100 to-primary-200'
+        }`}>
+          <Upload className={`h-10 w-10 transition-all duration-300 ${
+            isDragActive ? 'text-white icon-glow' : 'text-primary-600'
+          }`} />
+        </div>
         <div className="mt-4">
-          <p className="text-lg font-medium text-gray-900">
+          <p className="text-xl font-bold text-gray-900 mb-2">
             {isDragActive
               ? 'Drop files here'
               : 'Drag and drop files here, or click to select'}
           </p>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="text-sm text-gray-600 font-medium">
             Supports PDF, Word, and Excel documents
           </p>
         </div>
       </div>
 
       {files.length > 0 && (
-        <div className="bg-white shadow rounded-lg">
+        <div className="glass-panel rounded-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-medium text-gray-900">
               Selected Files ({files.length})
@@ -163,15 +171,15 @@ export default function DocumentUpload() {
             {files.map((fileItem) => (
               <div
                 key={fileItem.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+                className="flex items-center justify-between p-4 glass-strong rounded-lg border border-gray-200"
               >
                 <div className="flex items-center flex-1">
-                  <FileText className="h-8 w-8 text-gray-400 mr-4" />
+                  <FileText className="h-8 w-8 text-gray-600 mr-4" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900">
                       {fileItem.file.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       {(fileItem.file.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                     {fileItem.status !== 'pending' && (
@@ -194,15 +202,15 @@ export default function DocumentUpload() {
                   {fileItem.status === 'completed' && fileItem.analysisId && (
                     <button
                       onClick={() => viewAnalysis(fileItem.analysisId!)}
-                      className="text-primary-600 hover:text-primary-900 text-sm font-medium"
+                      className="text-primary-600 hover:text-primary-800 text-sm font-medium transition-colors"
                     >
-                      View Analysis
+                      View Analysis →
                     </button>
                   )}
                   {fileItem.status === 'pending' && (
                     <button
                       onClick={() => removeFile(fileItem.id)}
-                      className="text-red-600 hover:text-red-900"
+                      className="text-red-600 hover:text-red-800 transition-colors"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -218,7 +226,7 @@ export default function DocumentUpload() {
             <button
               onClick={uploadFiles}
               disabled={isUploading || files.every((f) => f.status === 'completed')}
-              className="w-full bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full btn-gradient text-white px-4 py-3 rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold"
             >
               {isUploading ? 'Uploading...' : 'Upload and Analyze'}
             </button>

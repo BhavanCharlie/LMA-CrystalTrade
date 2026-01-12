@@ -68,99 +68,118 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
         <p className="mt-2 text-sm text-gray-600">
           Overview of loan due diligence analyses
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <FileText className="h-6 w-6 text-gray-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Analyses
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats?.total_analyses || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-6 w-6 text-green-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Completed
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats?.completed || 0}
-                  </dd>
-                </dl>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in">
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 shadow-lg">
+                    <FileText className="h-6 w-6 text-primary-600 icon-glow" />
+                  </div>
+                </div>
+                <div className="ml-4 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                      Total Analyses
+                    </dt>
+                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                      {stats?.total_analyses || 0}
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Clock className="h-6 w-6 text-yellow-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    In Progress
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats?.in_progress || 0}
-                  </dd>
-                </dl>
+        <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-green-100 to-green-200 shadow-lg">
+                    <CheckCircle className="h-6 w-6 text-green-600 icon-glow" />
+                  </div>
+                </div>
+                <div className="ml-4 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                      Completed
+                    </dt>
+                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                      {stats?.completed || 0}
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <AlertTriangle className="h-6 w-6 text-red-400" />
+        <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200 shadow-lg">
+                    <Clock className="h-6 w-6 text-yellow-600 icon-glow" />
+                  </div>
+                </div>
+                <div className="ml-4 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                      In Progress
+                    </dt>
+                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                      {stats?.in_progress || 0}
+                    </dd>
+                  </dl>
+                </div>
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    High Risk
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats?.high_risk || 0}
-                  </dd>
-                </dl>
+            </div>
+          </div>
+        </div>
+
+        <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in" style={{ animationDelay: '0.3s' }}>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-red-100 to-red-200 shadow-lg">
+                    <AlertTriangle className="h-6 w-6 text-red-600 icon-glow" />
+                  </div>
+                </div>
+                <div className="ml-4 w-0 flex-1">
+                  <dl>
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                      High Risk
+                    </dt>
+                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                      {stats?.high_risk || 0}
+                    </dd>
+                  </dl>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Risk Distribution
-          </h3>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="glass-panel rounded-2xl p-8 fade-in">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">
+              Risk Distribution
+            </h3>
+            <div className="w-2 h-2 rounded-full bg-primary-500 pulse-slow"></div>
+          </div>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -184,15 +203,18 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Status Overview
-          </h3>
+        <div className="glass-panel rounded-2xl p-8 fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">
+              Status Overview
+            </h3>
+            <div className="w-2 h-2 rounded-full bg-primary-500 pulse-slow"></div>
+          </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={statusData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
+              <XAxis dataKey="name" stroke="rgba(255,255,255,0.8)" />
+              <YAxis stroke="rgba(255,255,255,0.8)" />
               <Tooltip />
               <Bar dataKey="value" fill="#0ea5e9" />
             </BarChart>
@@ -200,64 +222,70 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">
-            Recent Analyses
-          </h3>
+      <div className="glass-panel rounded-2xl overflow-hidden fade-in">
+        <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-gray-900">
+              Recent Analyses
+            </h3>
+            <span className="text-sm text-gray-500 font-medium">
+              {stats?.recent_analyses?.length || 0} items
+            </span>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Loan Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Risk Score
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {stats?.recent_analyses?.map((analysis) => (
-                <tr key={analysis.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {analysis.loan_name}
+              {stats?.recent_analyses?.map((analysis, idx) => (
+                <tr key={analysis.id} className="hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-200 smooth-transition" style={{ animationDelay: `${idx * 0.05}s` }}>
+                  <td className="px-8 py-5 whitespace-nowrap">
+                    <div className="text-sm font-semibold text-gray-900">{analysis.loan_name}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-8 py-5 whitespace-nowrap">
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`px-4 py-2 text-xs font-bold rounded-lg shadow-sm ${
                         analysis.risk_score >= 70
-                          ? 'bg-red-100 text-red-800'
+                          ? 'bg-gradient-to-r from-red-100 to-red-50 text-red-800 border border-red-200'
                           : analysis.risk_score >= 40
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-green-100 text-green-800'
+                          ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 text-yellow-800 border border-yellow-200'
+                          : 'bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-200'
                       }`}
                     >
                       {analysis.risk_score}/100
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {analysis.status}
+                  <td className="px-8 py-5 whitespace-nowrap">
+                    <span className="text-sm text-gray-600 capitalize font-medium">{analysis.status}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(analysis.created_at).toLocaleDateString()}
+                  <td className="px-8 py-5 whitespace-nowrap">
+                    <span className="text-sm text-gray-500">{new Date(analysis.created_at).toLocaleDateString()}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-8 py-5 whitespace-nowrap">
                     <Link
                       to={`/analysis/${analysis.id}`}
-                      className="text-primary-600 hover:text-primary-900"
+                      className="inline-flex items-center text-primary-600 hover:text-primary-800 transition-all duration-200 font-semibold group"
                     >
                       View Details
+                      <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
                     </Link>
                   </td>
                 </tr>
