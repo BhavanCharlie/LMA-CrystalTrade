@@ -48,7 +48,7 @@ This desktop application automates and streamlines due diligence checks for seco
 
 ## Architecture
 
-### System Architecture Diagram (Mermaid)
+### System Architecture Diagram
 
 ```mermaid
 graph TB
@@ -139,7 +139,7 @@ graph TB
     style ExternalAPI fill:#ffd700
 ```
 
-### Request Flow (Mermaid)
+### Request Flow
 
 ```mermaid
 sequenceDiagram
@@ -168,96 +168,6 @@ sequenceDiagram
     API-->>Frontend: HTTP Response (JSON)
     Frontend->>Frontend: Update State
     Frontend-->>User: Display Results
-```
-
-### Request Flow
-
-```
-┌─────────┐
-│  User   │
-└────┬────┘
-     │
-     │ 1. User Action (click, form submit)
-     │
-┌────▼────────────────────────────────────┐
-│  React Frontend                        │
-│  ┌──────────────────────────────────┐  │
-│  │ Component/Page                   │  │
-│  │  • useState/useEffect            │  │
-│  │  • Event Handler                 │  │
-│  └────────────┬─────────────────────┘  │
-│               │                         │
-│  ┌────────────▼─────────────────────┐  │
-│  │ API Service (api.ts)            │  │
-│  │  • Axios instance                │  │
-│  │  • JWT token injection          │  │
-│  │  • Request formatting            │  │
-│  └────────────┬─────────────────────┘  │
-└───────────────┼─────────────────────────┘
-                │
-                │ 2. HTTP Request (JSON)
-                │    Headers: Authorization: Bearer <token>
-                │
-┌───────────────▼─────────────────────────┐
-│  FastAPI Backend                       │
-│  ┌──────────────────────────────────┐  │
-│  │ CORS Middleware                  │  │
-│  └────────────┬─────────────────────┘  │
-│               │                         │
-│  ┌────────────▼─────────────────────┐  │
-│  │ JWT Auth Middleware               │  │
-│  │  • Verify token                    │  │
-│  │  • Extract user info               │  │
-│  └────────────┬─────────────────────┘  │
-│               │                         │
-│  ┌────────────▼─────────────────────┐  │
-│  │ Route Handler                    │  │
-│  │  • Validate request               │  │
-│  │  • Parse parameters              │  │
-│  │  • Call service layer            │  │
-│  └────────────┬─────────────────────┘  │
-│               │                         │
-│  ┌────────────▼─────────────────────┐  │
-│  │ Service Layer                    │  │
-│  │  • Business logic                │  │
-│  │  • Data processing               │  │
-│  │  • External API calls            │  │
-│  └────────────┬─────────────────────┘  │
-│               │                         │
-│  ┌────────────▼─────────────────────┐  │
-│  │ Database Layer (SQLAlchemy)     │  │
-│  │  • ORM queries                   │  │
-│  │  • Transactions                  │  │
-│  │  • Data persistence              │  │
-│  └────────────┬─────────────────────┘  │
-└───────────────┼─────────────────────────┘
-                │
-                │ 3. SQL Query
-                │
-┌───────────────▼─────────────────────────┐
-│  SQLite Database                        │
-│  • Execute query                        │
-│  • Return results                       │
-└───────────────┬─────────────────────────┘
-                │
-                │ 4. Query Results
-                │
-┌───────────────▼─────────────────────────┐
-│  FastAPI Backend                       │
-│  • Format response                     │
-│  • Add status code                     │
-│  • Serialize data                      │
-└───────────────┬─────────────────────────┘
-                │
-                │ 5. HTTP Response (JSON)
-                │    Status: 200 OK
-                │
-┌───────────────▼─────────────────────────┐
-│  React Frontend                        │
-│  • Update state                        │
-│  • Re-render components                │
-│  • Show notifications                  │
-└─────────────────────────────────────────┘
 ```
 
 ## Project Structure
@@ -320,7 +230,7 @@ See `backend/models.py` for complete model definitions with fields and relations
 
 ## Data Flow Diagram
 
-### Document Upload and Analysis Flow (Mermaid)
+### Document Upload and Analysis Flow
 
 ```mermaid
 sequenceDiagram
@@ -380,7 +290,7 @@ sequenceDiagram
     end
 ```
 
-### Loan Markets Feature Data Flow (Mermaid)
+### Loan Markets Feature Data Flow
 
 ```mermaid
 sequenceDiagram
@@ -418,7 +328,7 @@ sequenceDiagram
 
 ## Entity Relationship Diagram
 
-### Entity Relationship Diagram (Mermaid)
+### Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -617,7 +527,7 @@ erDiagram
 
 ## Deployment Architecture
 
-### Deployment Architecture Diagram (Mermaid)
+### Deployment Architecture Diagram
 
 ```mermaid
 graph LR
@@ -676,7 +586,7 @@ graph LR
 
 ## Workflow Diagram
 
-### Document Analysis Workflow (Mermaid)
+### Document Analysis Workflow
 
 ```mermaid
 flowchart TD
@@ -726,7 +636,7 @@ flowchart TD
 ```
 
 
-### Authentication Flow (Mermaid)
+### Authentication Flow
 
 ```mermaid
 sequenceDiagram
@@ -791,93 +701,6 @@ sequenceDiagram
             Frontend-->>User: Redirect to Login
         end
     end
-```
-
-### Authentication Flow (Detailed)
-
-User fills Signup Form
-    │
-    └─► POST /api/v1/auth/signup
-        Body: { email, username, password, full_name }
-        │
-        ├─► Backend Validation
-        │   • Check email format
-        │   • Check username uniqueness
-        │   • Check password strength
-        │
-        ├─► Hash Password
-        │   └─► bcrypt.hash(password)
-        │
-        ├─► Create User Record
-        │   • id: UUID
-        │   • email: validated
-        │   • username: unique
-        │   • hashed_password: bcrypt hash
-        │   • is_active: true
-        │   • is_admin: false
-        │
-        └─► Return User (without password)
-            │
-            └─► Frontend: Auto-login or redirect to login
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    USER LOGIN FLOW                                   │
-└─────────────────────────────────────────────────────────────────────┘
-
-User fills Login Form
-    │
-    └─► POST /api/v1/auth/login
-        Body: { username/email, password }
-        │
-        ├─► Backend: Find User
-        │   • Try username first (indexed lookup)
-        │   • If not found, try email (indexed lookup)
-        │   • Check if user exists and is_active
-        │
-        ├─► Verify Password
-        │   └─► bcrypt.checkpw(password, hashed_password)
-        │       • Returns True/False
-        │
-        ├─► Generate JWT Token
-        │   └─► jwt.encode({
-        │         "sub": user.id,
-        │         "username": user.username,
-        │         "exp": datetime.utcnow() + timedelta(days=30)
-        │       }, SECRET_KEY)
-        │
-        └─► Return Token
-            │
-            └─► Frontend: Store in localStorage
-                │
-                └─► Set Authorization header for all requests
-                    Header: Authorization: Bearer <token>
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                    PROTECTED ROUTE ACCESS                           │
-└─────────────────────────────────────────────────────────────────────┘
-
-User navigates to protected route
-    │
-    └─► ProtectedRoute Component
-        │
-        ├─► Check AuthContext
-        │   • Is user authenticated?
-        │   • Is token valid?
-        │
-        ├─► If not authenticated
-        │   └─► Redirect to /login
-        │
-        └─► If authenticated
-            │
-            └─► API Request with Token
-                │
-                └─► Backend: Verify Token
-                    • Extract token from header
-                    • jwt.decode(token, SECRET_KEY)
-                    • Verify expiration
-                    • Get user from database
-                    │
-                    └─► Allow request or return 401
 ```
 
 ### Auction Workflow
