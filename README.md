@@ -48,7 +48,98 @@ This desktop application automates and streamlines due diligence checks for seco
 
 ## Architecture
 
-### System Architecture Diagram
+### System Architecture Diagram (Mermaid)
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Electron[Electron Desktop App]
+        Browser[Web Browser<br/>React SPA]
+        Mobile[Mobile App<br/>Future]
+    end
+    
+    subgraph "Frontend Application"
+        Pages[Pages<br/>Dashboard, Analysis, Upload]
+        Components[Components<br/>RiskScore, TradeReadiness, Auction]
+        Services[API Services<br/>Axios Client, Auth Context]
+    end
+    
+    subgraph "API Layer - FastAPI"
+        AuthAPI[Auth Endpoints<br/>/signup, /login, /me]
+        DocAPI[Document API<br/>/upload]
+        AnalysisAPI[Analysis API<br/>/start, /get, /trade-readiness]
+        AuctionAPI[Auction API<br/>/create, /bids, /close]
+        MonitorAPI[Monitoring API<br/>/rules, /alerts]
+    end
+    
+    subgraph "Service Layer"
+        DocProcessor[Document Processor<br/>PDF/Word/Excel Parsing]
+        AIAnalyzer[AI Analyzer<br/>OpenAI GPT-4]
+        DueDiligence[Due Diligence Engine<br/>Compliance & Risk]
+        TradeReadiness[Trade Readiness Engine]
+        TransferSim[Transfer Simulator]
+        LMADev[LMA Deviation Engine]
+        BuyerFit[Buyer Fit Analyzer]
+        Negotiation[Negotiation Insights]
+        Monitoring[Monitoring Service]
+        Auction[Auction Service]
+    end
+    
+    subgraph "Data Layer"
+        DB[(SQLite Database<br/>SQLAlchemy ORM)]
+        FileStorage[File Storage<br/>uploads/, reports/]
+        ExternalAPI[External APIs<br/>OpenAI API]
+    end
+    
+    Electron --> Pages
+    Browser --> Pages
+    Mobile --> Pages
+    Pages --> Components
+    Components --> Services
+    
+    Services -->|HTTP/REST| AuthAPI
+    Services -->|HTTP/REST| DocAPI
+    Services -->|HTTP/REST| AnalysisAPI
+    Services -->|HTTP/REST| AuctionAPI
+    Services -->|HTTP/REST| MonitorAPI
+    
+    DocAPI --> DocProcessor
+    AnalysisAPI --> AIAnalyzer
+    AnalysisAPI --> DueDiligence
+    AnalysisAPI --> TradeReadiness
+    AnalysisAPI --> TransferSim
+    AnalysisAPI --> LMADev
+    AnalysisAPI --> BuyerFit
+    AnalysisAPI --> Negotiation
+    MonitorAPI --> Monitoring
+    AuctionAPI --> Auction
+    
+    DocProcessor --> FileStorage
+    AIAnalyzer --> ExternalAPI
+    TradeReadiness --> DB
+    DueDiligence --> DB
+    TransferSim --> DB
+    LMADev --> DB
+    BuyerFit --> DB
+    Negotiation --> DB
+    Monitoring --> DB
+    Auction --> DB
+    
+    style Electron fill:#61dafb
+    style Browser fill:#61dafb
+    style Pages fill:#61dafb
+    style Components fill:#61dafb
+    style Services fill:#61dafb
+    style AuthAPI fill:#009688
+    style DocAPI fill:#009688
+    style AnalysisAPI fill:#009688
+    style AuctionAPI fill:#009688
+    style AIAnalyzer fill:#ff9800
+    style DB fill:#336791
+    style ExternalAPI fill:#ffd700
+```
+
+### System Architecture Diagram (Detailed)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -359,7 +450,67 @@ See `backend/models.py` for complete model definitions with fields and relations
 
 ## Data Flow Diagram
 
-### Document Upload and Analysis Flow
+### Document Upload and Analysis Flow (Mermaid)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant DocProcessor
+    participant AIAnalyzer
+    participant DueDiligence
+    participant Database
+    participant OpenAI
+    
+    User->>Frontend: Upload Document (PDF/Word/Excel)
+    Frontend->>Backend: POST /api/v1/documents/upload
+    Backend->>DocProcessor: save_file()
+    DocProcessor->>FileStorage: Save file to disk
+    Backend->>Database: Create Analysis (status: pending)
+    Database-->>Backend: Return analysis_id
+    Backend-->>Frontend: Return analysis_id
+    Frontend-->>User: Show "Upload successful"
+    
+    User->>Frontend: Click "Start Analysis"
+    Frontend->>Backend: POST /api/v1/analyses/{id}/start
+    Backend->>Database: Update status: "processing"
+    Backend->>Backend: Start Background Task
+    
+    par Parallel Processing
+        Backend->>DocProcessor: extract_text()
+        DocProcessor->>FileStorage: Read file
+        DocProcessor-->>Backend: Return raw text
+    and
+        Backend->>AIAnalyzer: analyze_document(text)
+        AIAnalyzer->>OpenAI: GPT-4 API Call
+        OpenAI-->>AIAnalyzer: Extracted terms, risks, clauses
+        AIAnalyzer-->>Backend: Structured JSON
+    and
+        Backend->>DueDiligence: run_checks(text, ai_results)
+        DueDiligence->>DueDiligence: Check compliance
+        DueDiligence->>DueDiligence: Calculate risk scores
+        DueDiligence->>DueDiligence: Generate recommendations
+        DueDiligence-->>Backend: Compliance & risk data
+    end
+    
+    Backend->>Database: Update Analysis (status: completed)
+    Database-->>Backend: Confirmation
+    
+    loop Polling
+        Frontend->>Backend: GET /api/v1/analyses/{id}
+        Backend->>Database: Query Analysis
+        Database-->>Backend: Analysis data
+        Backend-->>Frontend: Return results
+        alt Status = "processing"
+            Frontend->>Frontend: Wait 3 seconds
+        else Status = "completed"
+            Frontend->>Frontend: Display results
+        end
+    end
+```
+
+### Document Upload and Analysis Flow (Detailed)
 
 ```
 ┌──────────────┐
@@ -540,10 +691,203 @@ See `backend/models.py` for complete model definitions with fields and relations
 
 ## Entity Relationship Diagram
 
+### Entity Relationship Diagram (Mermaid)
+
+```mermaid
+erDiagram
+    USER ||--o{ ANALYSIS : creates
+    USER ||--o{ AUCTION : creates
+    USER ||--o{ BID : places
+    
+    ANALYSIS ||--o{ DOCUMENT : contains
+    ANALYSIS ||--o{ REPORT : generates
+    ANALYSIS ||--o{ TRADE_READINESS : has
+    ANALYSIS ||--o{ TRANSFER_SIMULATION : has
+    ANALYSIS ||--o{ LMA_DEVIATION : has
+    ANALYSIS ||--o{ BUYER_FIT : has
+    ANALYSIS ||--o{ NEGOTIATION_INSIGHT : has
+    ANALYSIS ||--o{ MONITORING_RULE : has
+    ANALYSIS ||--o{ AUCTION : linked_to
+    ANALYSIS ||--o{ EVIDENCE_LOG : references
+    
+    AUCTION ||--o{ BID : receives
+    MONITORING_RULE ||--o{ MONITORING_ALERT : triggers
+    
+    USER {
+        string id PK
+        string email UK
+        string username UK
+        string hashed_password
+        string full_name
+        boolean is_active
+        boolean is_admin
+        datetime created_at
+    }
+    
+    ANALYSIS {
+        string id PK
+        string loan_name
+        string status
+        string document_path
+        integer risk_score
+        json risk_breakdown
+        json compliance_checks
+        json extracted_terms
+        json recommendations
+        datetime created_at
+    }
+    
+    DOCUMENT {
+        string id PK
+        string analysis_id FK
+        string file_path
+        string file_name
+        string file_type
+        integer file_size
+    }
+    
+    REPORT {
+        string id PK
+        string analysis_id FK
+        string loan_name
+        string report_type
+        string file_path
+    }
+    
+    TRADE_READINESS {
+        string id PK
+        string analysis_id FK
+        integer score
+        string label
+        json breakdown
+        float confidence
+        json evidence_links
+    }
+    
+    TRANSFER_SIMULATION {
+        string id PK
+        string analysis_id FK
+        string pathway_type
+        json required_consents
+        integer estimated_timeline_days
+        json blockers
+        json recommended_actions
+    }
+    
+    LMA_DEVIATION {
+        string id PK
+        string analysis_id FK
+        string clause_text
+        string clause_type
+        string deviation_severity
+        text market_impact
+        text baseline_template
+        float confidence
+    }
+    
+    BUYER_FIT {
+        string id PK
+        string analysis_id FK
+        string buyer_type
+        integer fit_score
+        json indicators
+        text reasoning
+    }
+    
+    NEGOTIATION_INSIGHT {
+        string id PK
+        string analysis_id FK
+        string clause_reference
+        text clause_text
+        string negotiation_likelihood
+        json suggested_redlines
+        json questions_for_agent
+    }
+    
+    MONITORING_RULE {
+        string id PK
+        string analysis_id FK
+        string rule_type
+        string rule_name
+        float threshold_value
+        float current_value
+        boolean is_active
+    }
+    
+    MONITORING_ALERT {
+        string id PK
+        string rule_id FK
+        string analysis_id FK
+        string alert_type
+        text message
+        float threshold_breach_percentage
+        boolean is_acknowledged
+    }
+    
+    AUCTION {
+        string id PK
+        string analysis_id FK
+        string loan_name
+        string auction_type
+        float lot_size
+        float min_bid
+        float bid_increment
+        float reserve_price
+        datetime start_time
+        datetime end_time
+        string status
+        string winning_bid_id FK
+    }
+    
+    BID {
+        string id PK
+        string auction_id FK
+        string bidder_id
+        string bidder_name
+        float bid_amount
+        boolean is_locked
+        boolean is_winning
+        datetime timestamp
+    }
+    
+    EVIDENCE_LOG {
+        string id PK
+        string analysis_id FK
+        string document_id
+        string document_name
+        integer page_number
+        string section
+        text extraction_text
+        float extraction_confidence
+        string feature_type
+        string feature_id
+    }
+    
+    AUDIT_EVENT {
+        string id PK
+        string event_type
+        string entity_type
+        string entity_id
+        string user_id FK
+        string action
+        json details
+        datetime timestamp
+    }
+    
+    DEAL {
+        string id PK
+        string deal_name
+        string borrower_name
+        string deal_type
+        float principal_amount
+        string currency
+        string status
+        json analysis_ids
+        json deal_metadata
+    }
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         CORE ENTITIES                               │
-└─────────────────────────────────────────────────────────────────────┘
+
+### Entity Relationship Diagram (Detailed)
 
 ┌──────────────┐
 │    User      │
@@ -722,9 +1066,117 @@ See `backend/models.py` for complete model definitions with fields and relations
 └──────────────────┘
 ```
 
+## Deployment Architecture
+
+### Deployment Architecture Diagram (Mermaid)
+
+```mermaid
+graph LR
+    subgraph "User Devices"
+        Desktop[Desktop Browser]
+        ElectronApp[Electron Desktop App]
+        Mobile[Mobile Browser]
+    end
+    
+    subgraph "Frontend Deployment"
+        CDN[CDN/Edge Cache]
+        Frontend[React Frontend<br/>Vite Build<br/>Static Assets]
+    end
+    
+    subgraph "Backend Deployment"
+        Backend[FastAPI Backend<br/>Uvicorn Server]
+        DB[(PostgreSQL/SQLite<br/>Database)]
+        FileStorage[File Storage<br/>S3/Local]
+    end
+    
+    subgraph "External Services"
+        OpenAIAPI[OpenAI API<br/>GPT-4]
+        EmailService[Email Service<br/>Future]
+    end
+    
+    Desktop --> CDN
+    ElectronApp --> CDN
+    Mobile --> CDN
+    CDN --> Frontend
+    Frontend -->|HTTPS/REST API| Backend
+    Backend --> DB
+    Backend --> FileStorage
+    Backend -->|AI Requests| OpenAIAPI
+    Backend -->|Notifications| EmailService
+    
+    style Frontend fill:#61dafb
+    style Backend fill:#009688
+    style DB fill:#336791
+    style OpenAIAPI fill:#ffd700
+    style CDN fill:#00d4ff
+```
+
+### Deployment Options
+
+**Development:**
+- Frontend: Vite dev server (localhost:5173)
+- Backend: Uvicorn (localhost:8000)
+- Database: SQLite (local file)
+- File Storage: Local filesystem
+
+**Production:**
+- Frontend: Static hosting (Vercel, Netlify, or S3+CloudFront)
+- Backend: Cloud platform (Render, Railway, AWS, GCP)
+- Database: PostgreSQL (managed service)
+- File Storage: S3, GCS, or Azure Blob
+
 ## Workflow Diagram
 
-### Complete Document Analysis Workflow
+### Document Analysis Workflow (Mermaid)
+
+```mermaid
+flowchart TD
+    Start([User Starts]) --> Upload[Upload Document]
+    Upload --> Validate{File Valid?}
+    Validate -->|No| Error1[Show Error]
+    Validate -->|Yes| SaveFile[Save to Storage]
+    SaveFile --> CreateAnalysis[Create Analysis Record<br/>status: pending]
+    CreateAnalysis --> ShowSuccess[Show Upload Success]
+    ShowSuccess --> StartAnalysis{User Clicks<br/>Start Analysis?}
+    
+    StartAnalysis -->|No| Wait[Wait for User]
+    StartAnalysis -->|Yes| UpdateStatus[Update Status:<br/>processing]
+    UpdateStatus --> BackgroundTask[Background Task]
+    
+    BackgroundTask --> ExtractText[Extract Text<br/>PDF/Word/Excel]
+    ExtractText --> AIAnalysis[AI Analysis<br/>OpenAI GPT-4]
+    AIAnalysis --> DueDiligence[Due Diligence Checks]
+    DueDiligence --> RiskScoring[Calculate Risk Scores]
+    RiskScoring --> Recommendations[Generate Recommendations]
+    Recommendations --> SaveResults[Save Results to DB]
+    SaveResults --> UpdateComplete[Update Status:<br/>completed]
+    
+    UpdateComplete --> Polling{Status Polling}
+    Polling -->|processing| Wait3Sec[Wait 3 seconds]
+    Wait3Sec --> Polling
+    Polling -->|completed| DisplayResults[Display Results]
+    
+    DisplayResults --> OverviewTab[Overview Tab<br/>Risk, Terms, Compliance]
+    DisplayResults --> LoanMarketsTabs[Loan Markets Tabs]
+    
+    LoanMarketsTabs --> TradeReadiness[Trade Readiness]
+    LoanMarketsTabs --> TransferSim[Transfer Simulator]
+    LoanMarketsTabs --> LMADev[LMA Deviations]
+    LoanMarketsTabs --> BuyerFit[Buyer Fit]
+    LoanMarketsTabs --> Negotiation[Negotiation Insights]
+    LoanMarketsTabs --> Monitoring[Monitoring]
+    LoanMarketsTabs --> Auction[Auction Room]
+    
+    Error1 --> Start
+    Wait --> StartAnalysis
+    
+    style Start fill:#90EE90
+    style DisplayResults fill:#87CEEB
+    style Error1 fill:#FFB6C1
+    style BackgroundTask fill:#FFD700
+```
+
+### Complete Document Analysis Workflow (Detailed)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -895,12 +1347,74 @@ Frontend Polls for Status
                         └─► GET /api/v1/auctions/{id}/leaderboard
 ```
 
-### Authentication Flow
+### Authentication Flow (Mermaid)
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant AuthService
+    participant Database
+    
+    Note over User,Database: Registration Flow
+    User->>Frontend: Fill Signup Form
+    Frontend->>Backend: POST /api/v1/auth/signup
+    Backend->>AuthService: Validate Input
+    AuthService->>Database: Check Email/Username Uniqueness
+    Database-->>AuthService: Validation Result
+    AuthService->>AuthService: Hash Password (bcrypt)
+    AuthService->>Database: Create User Record
+    Database-->>AuthService: User Created
+    AuthService->>AuthService: Generate JWT Token
+    AuthService-->>Backend: Return User + Token
+    Backend-->>Frontend: Success Response
+    Frontend->>Frontend: Store Token in localStorage
+    Frontend-->>User: Redirect to Dashboard
+    
+    Note over User,Database: Login Flow
+    User->>Frontend: Fill Login Form
+    Frontend->>Backend: POST /api/v1/auth/login
+    Backend->>AuthService: Authenticate User
+    AuthService->>Database: Find User (username/email)
+    Database-->>AuthService: User Data
+    AuthService->>AuthService: Verify Password (bcrypt)
+    alt Password Correct
+        AuthService->>AuthService: Generate JWT Token
+        AuthService-->>Backend: Return Token
+        Backend-->>Frontend: Success + Token
+        Frontend->>Frontend: Store Token
+        Frontend-->>User: Redirect to Dashboard
+    else Password Incorrect
+        AuthService-->>Backend: Authentication Failed
+        Backend-->>Frontend: 401 Unauthorized
+        Frontend-->>User: Show Error Message
+    end
+    
+    Note over User,Database: Protected Route Access
+    User->>Frontend: Navigate to Protected Route
+    Frontend->>Frontend: Check AuthContext
+    alt Not Authenticated
+        Frontend-->>User: Redirect to /login
+    else Authenticated
+        Frontend->>Backend: API Request + JWT Token
+        Backend->>AuthService: Verify Token
+        AuthService->>AuthService: Decode & Validate Token
+        alt Token Valid
+            AuthService->>Database: Get User
+            Database-->>AuthService: User Data
+            AuthService-->>Backend: User Authenticated
+            Backend->>Backend: Process Request
+            Backend-->>Frontend: Success Response
+        else Token Invalid/Expired
+            Backend-->>Frontend: 401 Unauthorized
+            Frontend->>Frontend: Clear Token
+            Frontend-->>User: Redirect to Login
+        end
+    end
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    USER REGISTRATION FLOW                            │
-└─────────────────────────────────────────────────────────────────────┘
+
+### Authentication Flow (Detailed)
 
 User fills Signup Form
     │
