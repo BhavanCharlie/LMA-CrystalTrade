@@ -63,6 +63,54 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 # Initialize database
 init_db()
 
+# Create demo users on startup (for free tier deployment without shell access)
+def create_demo_users_on_startup():
+    """Create demo users if they don't exist"""
+    try:
+        db = next(get_db())
+        
+        # Check if demo user exists
+        demo_user = db.query(User).filter(User.username == "demo").first()
+        if not demo_user:
+            import bcrypt
+            demo_hash = bcrypt.hashpw("demo123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            demo_user = User(
+                id=str(uuid.uuid4()),
+                email="demo@crystaltrade.com",
+                username="demo",
+                hashed_password=demo_hash,
+                full_name="Demo User",
+                is_active=True,
+                is_admin=False
+            )
+            db.add(demo_user)
+            print("✅ Demo user created: demo/demo123")
+        
+        # Check if admin user exists
+        admin_user = db.query(User).filter(User.username == "admin").first()
+        if not admin_user:
+            import bcrypt
+            admin_hash = bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            admin_user = User(
+                id=str(uuid.uuid4()),
+                email="admin@crystaltrade.com",
+                username="admin",
+                hashed_password=admin_hash,
+                full_name="Admin User",
+                is_active=True,
+                is_admin=True
+            )
+            db.add(admin_user)
+            print("✅ Admin user created: admin/admin123")
+        
+        db.commit()
+        db.close()
+    except Exception as e:
+        print(f"Note: Could not create demo users: {e}")
+
+# Create demo users
+create_demo_users_on_startup()
+
 # Initialize services
 document_processor = DocumentProcessor()
 ai_analyzer = AIAnalyzer()
