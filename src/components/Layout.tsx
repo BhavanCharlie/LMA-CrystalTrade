@@ -17,6 +17,7 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/', icon: BarChart3, label: 'Dashboard' },
     { path: '/upload', icon: Upload, label: 'Upload Documents' },
     { path: '/reports', icon: FileCheck, label: 'Reports' },
+    { path: '/about', icon: HelpCircle, label: 'About' },
   ]
 
   const currentYear = new Date().getFullYear()

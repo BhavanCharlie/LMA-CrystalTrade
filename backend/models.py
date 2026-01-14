@@ -139,8 +139,6 @@ class MonitoringRule(Base):
     last_checked = Column(DateTime)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
-
-
 class MonitoringAlert(Base):
     __tablename__ = "monitoring_alerts"
 

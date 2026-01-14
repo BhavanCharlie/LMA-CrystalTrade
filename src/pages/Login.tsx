@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogIn, Mail, Lock, Eye, EyeOff, ArrowRight, Shield } from 'lucide-react'
+import { LogIn, Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import AnimatedLogo from '../components/AnimatedLogo'
@@ -14,6 +14,51 @@ export default function Login() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  // Demo credentials
+  const DEMO_CREDENTIALS = {
+    username: 'demo',
+    password: 'demo123',
+  }
+
+  const ADMIN_CREDENTIALS = {
+    username: 'admin',
+    password: 'admin123',
+  }
+
+  // One-click demo login
+  const handleDemoLogin = async () => {
+    setLoading(true)
+    try {
+      const loadingToast = toast.loading('Signing in with demo credentials...')
+      await login(DEMO_CREDENTIALS.username, DEMO_CREDENTIALS.password)
+      toast.dismiss(loadingToast)
+      toast.success(`Welcome back, ${DEMO_CREDENTIALS.username}!`)
+      navigate('/')
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.detail || error.message || 'Login failed. Please check your credentials.'
+      toast.error(errorMsg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // One-click admin login
+  const handleAdminLogin = async () => {
+    setLoading(true)
+    try {
+      const loadingToast = toast.loading('Signing in as admin...')
+      await login(ADMIN_CREDENTIALS.username, ADMIN_CREDENTIALS.password)
+      toast.dismiss(loadingToast)
+      toast.success(`Welcome back, ${ADMIN_CREDENTIALS.username}!`)
+      navigate('/')
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.detail || error.message || 'Login failed. Please check your credentials.'
+      toast.error(errorMsg)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -154,6 +199,28 @@ export default function Login() {
             </button>
           </form>
 
+          {/* Quick Login Buttons */}
+          <div className="mt-4 flex gap-2">
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              disabled={loading}
+              className="flex-1 py-2.5 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-300 flex items-center justify-center space-x-1.5 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-sm"
+            >
+              <Zap className="w-4 h-4" />
+              <span>Demo</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleAdminLogin}
+              disabled={loading}
+              className="flex-1 py-2.5 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-300 flex items-center justify-center space-x-1.5 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-sm"
+            >
+              <Zap className="w-4 h-4" />
+              <span>Admin</span>
+            </button>
+          </div>
+
           {/* Sign Up Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
@@ -162,21 +229,6 @@ export default function Login() {
                 Sign up
               </Link>
             </p>
-          </div>
-        </div>
-
-        {/* Demo Credentials */}
-        <div className="mt-6 glass-strong rounded-xl p-4 border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-blue-50">
-          <div className="text-xs font-bold text-primary-900 uppercase tracking-wide mb-2">Demo Credentials</div>
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-700 font-medium">Username:</span>
-              <span className="text-gray-900 font-bold">demo</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-700 font-medium">Password:</span>
-              <span className="text-gray-900 font-bold">demo123</span>
-            </div>
           </div>
         </div>
       </div>
