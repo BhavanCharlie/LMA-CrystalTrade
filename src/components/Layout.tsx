@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { FileText, Upload, BarChart3, FileCheck, HelpCircle, Settings, Bell, Shield, Github, Linkedin, Mail, LogOut, User } from 'lucide-react'
+import { Upload, BarChart3, FileCheck, HelpCircle, Settings, Bell, Shield, Github, Linkedin, Mail, LogOut } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import AnimatedLogo from './AnimatedLogo'

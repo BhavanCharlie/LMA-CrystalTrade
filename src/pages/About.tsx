@@ -198,7 +198,7 @@ export default function About() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <AnimatedLogo size="xl" showText={false} />
+              <AnimatedLogo size="lg" showText={false} />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               CrystalTrade

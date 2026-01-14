@@ -93,14 +93,15 @@ export default function AnalysisView() {
     const featureKey = feature
     if (featureLoading[featureKey]) return
     
-    const hasData = {
+    const featureDataMap: Record<string, any> = {
       'trade-readiness': tradeReadiness,
       'transfer-sim': transferSim,
       'lma-deviations': lmaDeviations,
       'buyer-fit': buyerFit,
       'negotiation': negotiationInsights,
       'monitoring': monitoringAlerts,
-    }[feature]
+    }
+    const hasData = featureDataMap[feature]
     
     if (hasData) return
 

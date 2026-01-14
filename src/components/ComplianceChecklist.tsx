@@ -27,19 +27,6 @@ export default function ComplianceChecklist({
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pass':
-        return 'bg-green-50 border-green-200'
-      case 'fail':
-        return 'bg-red-50 border-red-200'
-      case 'warning':
-        return 'bg-yellow-50 border-yellow-200'
-      default:
-        return 'bg-gray-50 border-gray-200'
-    }
-  }
-
   return (
     <div className="glass-panel rounded-2xl p-8 fade-in">
       <div className="flex items-center mb-6">

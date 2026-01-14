@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import './AnimatedLogo.css'
 
 interface AnimatedLogoProps {
@@ -12,12 +11,6 @@ export default function AnimatedLogo({
   showText = true,
   className = '' 
 }: AnimatedLogoProps) {
-  const [isAnimating, setIsAnimating] = useState(true)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsAnimating(false), 2000)
-    return () => clearTimeout(timer)
-  }, [])
 
   const sizeClasses = {
     sm: 'w-8 h-8',

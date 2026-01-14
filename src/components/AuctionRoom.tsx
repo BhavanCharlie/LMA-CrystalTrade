@@ -34,17 +34,9 @@ interface Auction {
   }
 }
 
-interface Bid {
-  id: string
-  bidder_name: string
-  bid_amount: number
-  timestamp: string
-}
-
 export default function AuctionRoom({ analysisId, loanName }: AuctionRoomProps) {
   const [auctions, setAuctions] = useState<Auction[]>([])
   const [selectedAuction, setSelectedAuction] = useState<Auction | null>(null)
-  const [bids, setBids] = useState<Bid[]>([])
   const [leaderboard, setLeaderboard] = useState<any[]>([])
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -148,7 +140,6 @@ export default function AuctionRoom({ analysisId, loanName }: AuctionRoomProps) 
     
     try {
       const startTime = new Date()
-      const endTime = new Date(startTime.getTime() + parseInt(auctionForm.duration_hours) * 60 * 60 * 1000)
       
       const auctionConfig = {
         analysis_id: analysisId,
@@ -310,13 +301,6 @@ export default function AuctionRoom({ analysisId, loanName }: AuctionRoomProps) 
 
   const formatTime = (timeString: string) => {
     return new Date(timeString).toLocaleString()
-  }
-
-  const isAuctionActive = (auction: Auction) => {
-    const now = new Date()
-    const start = new Date(auction.start_time)
-    const end = new Date(auction.end_time)
-    return now >= start && now < end && auction.status === 'active'
   }
 
   return (
@@ -683,7 +667,7 @@ export default function AuctionRoom({ analysisId, loanName }: AuctionRoomProps) 
                 </div>
                 <button
                   type="submit"
-                  disabled={loading || selectedAuction.status === 'closed'}
+                  disabled={loading || (selectedAuction.status !== 'active' && selectedAuction.status !== 'pending')}
                   className="mt-6 w-full btn-gradient text-white px-6 py-4 rounded-xl font-bold text-lg disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg"
                 >
                   <Send className="h-5 w-5" />
