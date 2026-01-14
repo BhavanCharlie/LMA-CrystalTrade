@@ -570,230 +570,45 @@ graph LR
     style CDN fill:#00d4ff
 ```
 
-## Workflow Diagram
-
-### Document Analysis Workflow
-
-```mermaid
-flowchart TD
-    Start([User Starts]) --> Upload[Upload Document]
-    Upload --> Validate{File Valid?}
-    Validate -->|No| Error1[Show Error]
-    Validate -->|Yes| SaveFile[Save to Storage]
-    SaveFile --> CreateAnalysis[Create Analysis Record<br/>status: pending]
-    CreateAnalysis --> ShowSuccess[Show Upload Success]
-    ShowSuccess --> StartAnalysis{User Clicks<br/>Start Analysis?}
-    
-    StartAnalysis -->|No| Wait[Wait for User]
-    StartAnalysis -->|Yes| UpdateStatus[Update Status:<br/>processing]
-    UpdateStatus --> BackgroundTask[Background Task]
-    
-    BackgroundTask --> ExtractText[Extract Text<br/>PDF/Word/Excel]
-    ExtractText --> AIAnalysis[AI Analysis<br/>OpenAI GPT-4]
-    AIAnalysis --> DueDiligence[Due Diligence Checks]
-    DueDiligence --> RiskScoring[Calculate Risk Scores]
-    RiskScoring --> Recommendations[Generate Recommendations]
-    Recommendations --> SaveResults[Save Results to DB]
-    SaveResults --> UpdateComplete[Update Status:<br/>completed]
-    
-    UpdateComplete --> Polling{Status Polling}
-    Polling -->|processing| Wait3Sec[Wait 3 seconds]
-    Wait3Sec --> Polling
-    Polling -->|completed| DisplayResults[Display Results]
-    
-    DisplayResults --> OverviewTab[Overview Tab<br/>Risk, Terms, Compliance]
-    DisplayResults --> LoanMarketsTabs[Loan Markets Tabs]
-    
-    LoanMarketsTabs --> TradeReadiness[Trade Readiness]
-    LoanMarketsTabs --> TransferSim[Transfer Simulator]
-    LoanMarketsTabs --> LMADev[LMA Deviations]
-    LoanMarketsTabs --> BuyerFit[Buyer Fit]
-    LoanMarketsTabs --> Negotiation[Negotiation Insights]
-    LoanMarketsTabs --> Monitoring[Monitoring]
-    LoanMarketsTabs --> Auction[Auction Room]
-    
-    Error1 --> Start
-    Wait --> StartAnalysis
-    
-    style Start fill:#90EE90
-    style DisplayResults fill:#87CEEB
-    style Error1 fill:#FFB6C1
-    style BackgroundTask fill:#FFD700
-```
-
-
-### Authentication Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend
-    participant Backend
-    participant AuthService
-    participant Database
-    
-    Note over User,Database: Registration Flow
-    User->>Frontend: Fill Signup Form
-    Frontend->>Backend: POST /api/v1/auth/signup
-    Backend->>AuthService: Validate Input
-    AuthService->>Database: Check Email/Username Uniqueness
-    Database-->>AuthService: Validation Result
-    AuthService->>AuthService: Hash Password (bcrypt)
-    AuthService->>Database: Create User Record
-    Database-->>AuthService: User Created
-    AuthService->>AuthService: Generate JWT Token
-    AuthService-->>Backend: Return User + Token
-    Backend-->>Frontend: Success Response
-    Frontend->>Frontend: Store Token in localStorage
-    Frontend-->>User: Redirect to Dashboard
-    
-    Note over User,Database: Login Flow
-    User->>Frontend: Fill Login Form
-    Frontend->>Backend: POST /api/v1/auth/login
-    Backend->>AuthService: Authenticate User
-    AuthService->>Database: Find User (username/email)
-    Database-->>AuthService: User Data
-    AuthService->>AuthService: Verify Password (bcrypt)
-    alt Password Correct
-        AuthService->>AuthService: Generate JWT Token
-        AuthService-->>Backend: Return Token
-        Backend-->>Frontend: Success + Token
-        Frontend->>Frontend: Store Token
-        Frontend-->>User: Redirect to Dashboard
-    else Password Incorrect
-        AuthService-->>Backend: Authentication Failed
-        Backend-->>Frontend: 401 Unauthorized
-        Frontend-->>User: Show Error Message
-    end
-    
-    Note over User,Database: Protected Route Access
-    User->>Frontend: Navigate to Protected Route
-    Frontend->>Frontend: Check AuthContext
-    alt Not Authenticated
-        Frontend-->>User: Redirect to /login
-    else Authenticated
-        Frontend->>Backend: API Request + JWT Token
-        Backend->>AuthService: Verify Token
-        AuthService->>AuthService: Decode & Validate Token
-        alt Token Valid
-            AuthService->>Database: Get User
-            Database-->>AuthService: User Data
-            AuthService-->>Backend: User Authenticated
-            Backend->>Backend: Process Request
-            Backend-->>Frontend: Success Response
-        else Token Invalid/Expired
-            Backend-->>Frontend: 401 Unauthorized
-            Frontend->>Frontend: Clear Token
-            Frontend-->>User: Redirect to Login
-        end
-    end
-```
-
-### Auction Workflow
-
-```mermaid
-sequenceDiagram
-    participant Seller
-    participant Buyer
-    participant Frontend
-    participant Backend
-    participant AuctionService
-    participant Database
-    participant AuditLog
-    
-    Note over Seller,AuditLog: Auction Creation Flow
-    Seller->>Frontend: Create Auction Form
-    Frontend->>Backend: POST /api/v1/auctions<br/>{analysis_id, loan_name, type, lot_size, etc.}
-    Backend->>AuctionService: Validate & Create
-    AuctionService->>Database: Check analysis exists
-    Database-->>AuctionService: Analysis data
-    AuctionService->>Database: Create Auction Record<br/>(status: pending)
-    AuctionService->>AuditLog: Log auction_created event
-    Database-->>AuctionService: Auction created
-    AuctionService-->>Backend: Return auction_id
-    Backend-->>Frontend: Success + auction_id
-    Frontend-->>Seller: Show auction created
-    
-    Note over Seller,AuditLog: Bidding Flow
-    Buyer->>Frontend: View Auction & Place Bid
-    Frontend->>Backend: POST /api/v1/auctions/{id}/bids<br/>{bid_amount}
-    Backend->>AuctionService: Validate Bid
-    AuctionService->>Database: Check auction status
-    Database-->>AuctionService: Auction data
-    alt Auction Active & Bid Valid
-        AuctionService->>Database: Create Bid Record<br/>(is_locked: true)
-        AuctionService->>Database: Update highest bid
-        AuctionService->>AuditLog: Log bid_placed event
-        Database-->>AuctionService: Bid created
-        AuctionService-->>Backend: Success
-        Backend-->>Frontend: Bid accepted
-        Frontend-->>Buyer: Show bid confirmation
-    else Bid Invalid
-        AuctionService-->>Backend: Validation error
-        Backend-->>Frontend: Error message
-        Frontend-->>Buyer: Show error
-    end
-    
-    Note over Seller,AuditLog: Auction Closure Flow
-    Seller->>Frontend: Close Auction
-    Frontend->>Backend: POST /api/v1/auctions/{id}/close
-    Backend->>AuctionService: Close Auction
-    AuctionService->>Database: Get all bids
-    Database-->>AuctionService: Bids list
-    AuctionService->>AuctionService: Find highest bid<br/>Check >= reserve_price
-    alt Highest Bid >= Reserve
-        AuctionService->>Database: Update Auction<br/>(status: closed, winning_bid_id)
-        AuctionService->>Database: Update Bid<br/>(is_winning: true)
-        AuctionService->>AuditLog: Log auction_closed event
-        Database-->>AuctionService: Auction closed
-        AuctionService-->>Backend: Winner determined
-        Backend-->>Frontend: Auction closed + winner
-        Frontend-->>Seller: Show winner
-    else No Valid Bid
-        AuctionService->>Database: Update Auction<br/>(status: closed, no winner)
-        AuctionService-->>Backend: Auction closed (no winner)
-        Backend-->>Frontend: Auction closed
-        Frontend-->>Seller: Show no winner message
-    end
-```
-
 ## AI Modules Used
 
-### Core AI Libraries
-
-- **OpenAI** (`openai>=1.54.0`): GPT-4 Turbo for document analysis
-- **LangChain** (`langchain>=0.3.0`): Document processing framework
-  - `langchain-openai`: OpenAI integration
-  - `langchain-text-splitters`: Text chunking (4000 chars, 200 overlap)
-  - `langchain-core`: Core components
-- **spaCy** (`spacy>=3.7.5`): NLP for entity recognition
-- **scikit-learn** (`scikit-learn>=1.5.0`): ML algorithms
-- **numpy** (`numpy>=1.26.0`): Numerical computations
-- **chromadb** (`chromadb>=0.5.0`): Vector database for embeddings
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| **Language Model** | OpenAI GPT-4 Turbo | Document analysis, term extraction, risk assessment |
+| **AI Framework** | LangChain | Document processing orchestration, text chunking |
+| **NLP** | spaCy | Named entity recognition, text analysis |
+| **ML** | scikit-learn | Classification algorithms, pattern matching |
+| **Vector DB** | ChromaDB | Document embeddings storage |
+| **Numerical** | NumPy | Array operations, calculations |
 
 ### Document Processing
 
-- **pdfplumber** (`pdfplumber>=0.11.0`): PDF text extraction
-- **pypdf2** (`pypdf2>=3.0.1`): PDF fallback
-- **python-docx** (`python-docx>=1.1.2`): Word processing
-- **openpyxl** (`openpyxl>=3.1.5`): Excel processing
-- **pytesseract** (`pytesseract>=0.3.13`): OCR
-- **pillow** (`pillow>=11.0.0`): Image processing
+| Format | Library | Capability |
+|--------|---------|------------|
+| PDF | pdfplumber, PyPDF2 | Text extraction with fallback |
+| Word | python-docx | .docx file parsing |
+| Excel | openpyxl | Spreadsheet data extraction |
+| Images | Pytesseract, Pillow | OCR for scanned documents |
 
-### AI Services
+### AI-Powered Services
 
-- **AIAnalyzer**: GPT-4 document analysis
-- **TradeReadinessEngine**: Rule-based scoring
-- **LMADeviationEngine**: Template matching
-- **BuyerFitAnalyzer**: Classification algorithms
-- **NegotiationInsightsGenerator**: Pattern recognition
+| Service | Function | Technology |
+|---------|----------|------------|
+| AI Analyzer | Extract loan terms and clauses | GPT-4 + LangChain |
+| Trade Readiness Engine | Assess loan transferability | Rule-based + ML scoring |
+| LMA Deviation Engine | Compare against LMA standards | Template matching |
+| Buyer Fit Analyzer | Match loans to buyer types | Classification algorithms |
+| Negotiation Insights | Generate redlines and talking points | Pattern recognition |
+| Risk Scorer | Calculate risk breakdown | Weighted scoring model |
 
-### AI Configuration
+### Configuration
 
-- **Model**: GPT-4 Turbo Preview
-- **Temperature**: 0 (deterministic)
-- **Chunk Size**: 4000 characters
-- **Chunk Overlap**: 200 characters
+| Parameter | Value |
+|-----------|-------|
+| Model | GPT-4 Turbo Preview |
+| Temperature | 0 (deterministic) |
+| Chunk Size | 4,000 characters |
+| Chunk Overlap | 200 characters |
 
 ## Setup Instructions
 
