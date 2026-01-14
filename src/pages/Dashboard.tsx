@@ -50,12 +50,13 @@ export default function Dashboard() {
     )
   }
 
+  // Filter out zero values to avoid clutter
   const riskData = stats
     ? [
         { name: 'Low Risk', value: stats.low_risk, color: '#10b981' },
         { name: 'Medium Risk', value: stats.medium_risk, color: '#f59e0b' },
         { name: 'High Risk', value: stats.high_risk, color: '#ef4444' },
-      ]
+      ].filter(item => item.value > 0) // Only show non-zero values
     : []
 
   const statusData = stats
@@ -77,20 +78,23 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in">
           <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start flex-1">
                 <div className="flex-shrink-0">
                   <div className="p-4 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 shadow-lg">
                     <FileText className="h-6 w-6 text-primary-600 icon-glow" />
                   </div>
                 </div>
-                <div className="ml-4 w-0 flex-1">
+                <div className="ml-4 flex-1 min-w-0">
                   <dl>
-                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Total Analyses
                     </dt>
-                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                    <dd className="text-3xl font-bold text-gray-900 mt-1">
                       {stats?.total_analyses || 0}
+                    </dd>
+                    <dd className="text-xs text-gray-500 mt-2">
+                      All loan documents analyzed
                     </dd>
                   </dl>
                 </div>
@@ -101,20 +105,23 @@ export default function Dashboard() {
 
         <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in" style={{ animationDelay: '0.1s' }}>
           <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start flex-1">
                 <div className="flex-shrink-0">
                   <div className="p-4 rounded-xl bg-gradient-to-br from-green-100 to-green-200 shadow-lg">
                     <CheckCircle className="h-6 w-6 text-green-600 icon-glow" />
                   </div>
                 </div>
-                <div className="ml-4 w-0 flex-1">
+                <div className="ml-4 flex-1 min-w-0">
                   <dl>
-                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Completed
                     </dt>
-                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                    <dd className="text-3xl font-bold text-gray-900 mt-1">
                       {stats?.completed || 0}
+                    </dd>
+                    <dd className="text-xs text-gray-500 mt-2">
+                      Analyses ready for review
                     </dd>
                   </dl>
                 </div>
@@ -125,20 +132,23 @@ export default function Dashboard() {
 
         <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in" style={{ animationDelay: '0.2s' }}>
           <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start flex-1">
                 <div className="flex-shrink-0">
                   <div className="p-4 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200 shadow-lg">
                     <Clock className="h-6 w-6 text-yellow-600 icon-glow" />
                   </div>
                 </div>
-                <div className="ml-4 w-0 flex-1">
+                <div className="ml-4 flex-1 min-w-0">
                   <dl>
-                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       In Progress
                     </dt>
-                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                    <dd className="text-3xl font-bold text-gray-900 mt-1">
                       {stats?.in_progress || 0}
+                    </dd>
+                    <dd className="text-xs text-gray-500 mt-2">
+                      Currently being processed
                     </dd>
                   </dl>
                 </div>
@@ -149,20 +159,23 @@ export default function Dashboard() {
 
         <div className="glass-card overflow-hidden rounded-2xl card-hover fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start flex-1">
                 <div className="flex-shrink-0">
                   <div className="p-4 rounded-xl bg-gradient-to-br from-red-100 to-red-200 shadow-lg">
                     <AlertTriangle className="h-6 w-6 text-red-600 icon-glow" />
                   </div>
                 </div>
-                <div className="ml-4 w-0 flex-1">
+                <div className="ml-4 flex-1 min-w-0">
                   <dl>
-                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                    <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       High Risk
                     </dt>
-                    <dd className="text-3xl font-bold text-gray-900 mt-2">
+                    <dd className="text-3xl font-bold text-gray-900 mt-1">
                       {stats?.high_risk || 0}
+                    </dd>
+                    <dd className="text-xs text-gray-500 mt-2">
+                      Loans requiring attention
                     </dd>
                   </dl>
                 </div>
@@ -180,27 +193,53 @@ export default function Dashboard() {
             </h3>
             <div className="w-2 h-2 rounded-full bg-primary-500 pulse-slow"></div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={riskData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name}: ${(percent * 100).toFixed(0)}%`
-                }
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {riskData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+          {riskData.length > 0 ? (
+            <div>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={riskData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => value > 0 ? `${name}: ${value}` : ''}
+                    outerRadius={70}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {riskData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number) => `${value} analysis${value !== 1 ? 'es' : ''}`} />
+                </PieChart>
+              </ResponsiveContainer>
+              {/* Legend */}
+              <div className="flex justify-center gap-6 mt-4 flex-wrap">
+                {[
+                  { name: 'Low Risk', value: stats?.low_risk || 0, color: '#10b981' },
+                  { name: 'Medium Risk', value: stats?.medium_risk || 0, color: '#f59e0b' },
+                  { name: 'High Risk', value: stats?.high_risk || 0, color: '#ef4444' },
+                ].map((item) => (
+                  <div key={item.name} className="flex items-center space-x-2">
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      {item.name}: <span className="font-bold">{item.value}</span>
+                    </span>
+                  </div>
                 ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[250px] text-gray-400">
+              <AlertTriangle className="h-12 w-12 mb-4 opacity-50" />
+              <p className="text-lg font-medium">No risk data available</p>
+              <p className="text-sm mt-2">Upload and analyze documents to see risk distribution</p>
+            </div>
+          )}
         </div>
 
         <div className="glass-panel rounded-2xl p-8 fade-in" style={{ animationDelay: '0.1s' }}>
